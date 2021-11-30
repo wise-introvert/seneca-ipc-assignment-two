@@ -17,17 +17,14 @@ void applicationStartup(struct AccountTicketingData* accountTicketingData)
     if (loginINDEX == -1)
     { // not logged in
       loginINDEX = menuLogin(accountTicketingData->accounts, accountTicketingData->ACCOUNT_MAX_SIZE);
-    }
-    else if (loginINDEX == -2)
+    } else if (loginINDEX == -2)
     {
       // exit
       printf("\n==============================================\n"
           "Account Ticketing System - Terminated\n"
           "==============================================\n");
       break;
-    }
-    else
-    {
+    } else {
       // already logged in
       printf("\n");
       menuAgent(accountTicketingData, &accountTicketingData->accounts[loginINDEX]);
@@ -47,39 +44,30 @@ int menuLogin(const struct Account accounts[], int size)
   printf("Selection: ");
   int choice = getIntFromRange(0, 1);
   printf("\n");
-  if (choice == 0)
-  {
+  if (choice == 0) {
     printf("Are you sure you want to exit? ([Y]es|[N]o): ");
     char c = getCharOption("yYnN");
-    if (c == 'y' || c == 'Y')
-    {
+    if (c == 'y' || c == 'Y') {
       return -2; // TODO : Change for exit value
       // exit
-    }
-    else if (c == 'n' || c == 'N')
-    {
+    } else if (c == 'n' || c == 'N') {
       printf("\n");
       return -1;
     }
-  }
-  else if (choice == 1)
-  {                        // login to system
-    int chancesLeft = 3; // give 3 chances
-    while (1)
-    {
+  } else if (choice == 1) {
+    // login to system
+    // give 3 chances
+    int chancesLeft = 3; 
+
+    while (1) {
       int loginIndex = CheckLoginCredentials(accounts, size);
-      if (loginIndex != -1)
-      {
+      if (loginIndex != -1) {
         loginINDEX = loginIndex;
         return loginINDEX;
-      }
-      else
-      {
+      } else {
         printf("INVALID user login/password combination! [attempts remaining:%d]\n", --chancesLeft);
         printf("\n");
-      }
-      if (chancesLeft <= 0)
-      {
+      } if (chancesLeft <= 0) {
         // chances over : access denied
         printf("ERROR:  Access Denied.\n");
         printf("\n");
@@ -89,12 +77,12 @@ int menuLogin(const struct Account accounts[], int size)
       }
     }
   }
+
   return -1;
 }
-void menuAgent(struct AccountTicketingData* accountTicketingData, const struct Account* account)
-{
-  while (1)
-  {
+
+void menuAgent(struct AccountTicketingData* accountTicketingData, const struct Account* account) {
+  while (1) {
     printf("AGENT: %s (%d)", account->person.personName, account->accountNumber);
     printf("\n==============================================\n"
         "Account Ticketing System - Agent Menu\n"
@@ -116,26 +104,21 @@ void menuAgent(struct AccountTicketingData* accountTicketingData, const struct A
     int choice = getIntFromRange(0, 9);
 
     printf("\n");
-    if (choice == 1)
-    {
+    if (choice == 1) {
       // add an account
       int emptyIndex = 0;
       int isFound = 0;
-      for (emptyIndex = 0; emptyIndex < accountTicketingData->ACCOUNT_MAX_SIZE; emptyIndex++)
-      {
-        if (accountTicketingData->accounts[emptyIndex].accountNumber == 0)
-        {
+      for (emptyIndex = 0; emptyIndex < accountTicketingData->ACCOUNT_MAX_SIZE; emptyIndex++) {
+        if (accountTicketingData->accounts[emptyIndex].accountNumber == 0) {
           isFound = 1;
           break;
         }
       }
-      if (isFound == 0)
-      {
+
+      if (isFound == 0) {
         printf("ERROR: Account listing is FULL, call ITS Support!\n\n");
         pauseExecution();
-      }
-      else
-      {
+      } else {
         UpdateUniqueAccountNumber(accountTicketingData->accounts, accountTicketingData->ACCOUNT_MAX_SIZE);
         getAccount(&accountTicketingData->accounts[emptyIndex]);
         printf("*** New account added! ***\n");
@@ -143,120 +126,86 @@ void menuAgent(struct AccountTicketingData* accountTicketingData, const struct A
         pauseExecution();
       }
     }
-    else if (choice == 2)
-    {
+
+    else if (choice == 2) {
       // modify an account
       printf("Enter the account#: ");
       int accno = getPositiveInteger();
       int indexx = findAccountIndexByAcctNum(accno, accountTicketingData->accounts, accountTicketingData->ACCOUNT_MAX_SIZE, 0);
 
-      if (indexx != -1)
-      {
+      if (indexx != -1) {
         // account number found ; can be modified
         setModifyMenuActive(1);
-        while (modifyMenuActive == 1)
-        {
+        while (modifyMenuActive == 1) {
           updateAccount(&accountTicketingData->accounts[indexx]);
         }
-      }
-      else
-      {
+      } else {
         // account number not found ; show error
       }
-    }
-    else if (choice == 3)
-    {
+    } else if (choice == 3) {
       // remove a person
       printf("Enter the account#: ");
       int accno = getPositiveInteger();
 
-      if (account->accountNumber == accno)
-      { // check if the entered account number is already logged in
+      if (account->accountNumber == accno) { // check if the entered account number is already logged in
         printf("\nERROR: You can't remove your own account!\n\n");
         pauseExecution();
-      }
-      else
-      { // if not then find in the account's array
+      } else { // if not then find in the account's array
         int indexx = findAccountIndexByAcctNum(accno, accountTicketingData->accounts, accountTicketingData->ACCOUNT_MAX_SIZE, 0);
-        if (indexx != -1)
-        {
+        if (indexx != -1) {
           printf("\n");
           displayAccountDetailHeader();
           displayAccountDetailRecord(&accountTicketingData->accounts[indexx]);
 
           printf("\nAre you sure you want to remove this record? ([Y]es|[N]o): ");
           char ysno = getCharOption("YynN");
-          if (ysno == 'y' || ysno == 'Y')
-          {
-
+          if (ysno == 'y' || ysno == 'Y') {
             // -- Set assciated tickets to a safe state
             int i = 0;
             int ticketRemovedCounter = 0;
-            for (i = 0; i < accountTicketingData->TICKET_MAX_SIZE; i++)
-            {
-              if (accountTicketingData->tickets[i].customerAccountNumber == accountTicketingData->accounts[indexx].accountNumber)
-              {
+            for (i = 0; i < accountTicketingData->TICKET_MAX_SIZE; i++) {
+              if (accountTicketingData->tickets[i].customerAccountNumber == accountTicketingData->accounts[indexx].accountNumber) {
                 accountTicketingData->tickets[i].customerAccountNumber = 0; // safe state
                 ticketRemovedCounter++;
                 //printf("%d == %d", accountTicketingData->tickets[i].customerAccountNumber, accountTicketingData->accounts[indexx].accountNumber);
               }
             }
+
             i = 0;
-            // yes delete the record
+
+            // delete the record
             accountTicketingData->accounts[indexx].accountNumber = 0;
-            // ---
+
             printf("\n*** Account Removed! (%d ticket(s) removed) ***\n\n", ticketRemovedCounter);
             pauseExecution();
-          }
-          else
-          {
+          } else {
             // dont delete the record
           }
-        }
-        else
-        {
+        } else {
           // not found in the accounts array
         }
       }
-    }
-    else if (choice == 4)
-    {
+    } else if (choice == 4) {
       // list all accounts : detailed view
       displayAllAccountDetailRecords(accountTicketingData->accounts, accountTicketingData->ACCOUNT_MAX_SIZE);
       printf("\n");
       pauseExecution();
-    }
-    // else if (choice >4 && choice <= 9){
-    //     printf("Feature #%d currently unavailable!\n\n",choice);
-    //     pauseExecution();
-    // }
-    else if (choice == 5)
-    {
+    } else if (choice == 5) {
       // list new tickets
       ListNewTickets(accountTicketingData);
-    }
-    else if (choice == 6)
-    {
+    } else if (choice == 6) {
       // list active tickets
       ListActiveTickets(accountTicketingData);
-    }
-    else if (choice == 7)
-    {
+    } else if (choice == 7) {
       // list closed tickets
       ListClosedTickets(accountTicketingData);
-    }
-    else if (choice == 8)
-    {
+    } else if (choice == 8) {
       // add new ticket
       AddNewTicket(accountTicketingData);
-    }
-    else if (choice == 9)
-    {
+    } else if (choice == 9) {
       // manage a ticekt
       ManageTicket(accountTicketingData);
-    }
-    else if (choice == 0)
-    {
+    } else if (choice == 0) {
       //logout
       loginINDEX = -1;
       printf("### LOGGED OUT ###\n\n");
@@ -264,10 +213,9 @@ void menuAgent(struct AccountTicketingData* accountTicketingData, const struct A
     }
   }
 }
-int findAccountIndexByAcctNum(int accNoToFind, const struct Account accounts[], int size, int isPrompt)
-{
-  if (isPrompt == 1)
-  {
+
+int findAccountIndexByAcctNum(int accNoToFind, const struct Account accounts[], int size, int isPrompt) {
+  if (isPrompt == 1) {
     printf("Enter your account#: ");
     int accno = getPositiveInteger();
     accNoToFind = accno;
@@ -275,82 +223,72 @@ int findAccountIndexByAcctNum(int accNoToFind, const struct Account accounts[], 
 
   int i = 0;
   int isFound = 0;
-  for (i = 0; i < size; i++)
-  {
-    if (accNoToFind == accounts[i].accountNumber)
-    {
+  for (i = 0; i < size; i++) {
+    if (accNoToFind == accounts[i].accountNumber) {
       isFound = 1;
       break;
     }
   }
 
-  if (isFound == 1)
-  {
+  if (isFound == 1) {
     return i;
-  }
-  else
-  {
+  } else {
     return -1;
   }
 }
-int CheckLoginCredentials(const struct Account accounts[], int size)
-{
+
+int CheckLoginCredentials(const struct Account accounts[], int size) {
   printf("Enter the account#: ");
   int accNo = getPositiveInteger();
+
   printf("User Login        : ");
   char ul[32];
   getCString(ul, 1, 30);
+
   printf("Password          : ");
   char p[10];
   getPassword(p);
+
   int index = findAccountIndexByAcctNum(accNo, accounts, size, 0);
-  if (index != -1)
-  {
+  if (index != -1) {
     int credok = 1;
-    if (strcmp(accounts[index].userLogin.userLoginName, ul) != 0)
-    {
+
+    if (strcmp(accounts[index].userLogin.userLoginName, ul) != 0) {
       credok = -1;
     }
-    if (strcmp(accounts[index].userLogin.password, p) != 0)
-    {
+    if (strcmp(accounts[index].userLogin.password, p) != 0) {
       credok = -1;
     }
-    if (credok == 1)
-    {
+    if (credok == 1) {
       return index;
     }
-    else if (credok == -1)
-    {
+    else if (credok == -1) {
       return -1;
     }
-  }
-  else
-  {
+  } else {
     return -1;
   }
+
   return -1;
 }
-void displayAllAccountDetailRecords(const struct Account accounts[], int size)
-{
+
+void displayAllAccountDetailRecords(const struct Account accounts[], int size) {
   displayAccountDetailHeader();
+
   int index = 0;
-  for (index = 0; index < size; index++)
-  {
-    if (accounts[index].accountNumber != 0)
-    {
+  for (index = 0; index < size; index++) {
+    if (accounts[index].accountNumber != 0) {
       displayAccountDetailRecord(&accounts[index]);
     }
   }
 }
 
-//////
-void displayAccountDetailHeader()
-{
+void displayAccountDetailHeader() {
   printf("Acct# Acct.Type Full Name       Birth Income      Country    Login      Password\n");
   printf("----- --------- --------------- ----- ----------- ---------- ---------- --------\n");
 }
-void displayAccountDetailRecord(const struct Account* account)
-{
+
+void displayAccountDetailRecord(const struct Account* account) {
   printf("%05d ", account->accountNumber);
   (account->accountType == 'A') ? printf("%-9s ", "AGENT ") : printf("%-9s ", "CUSTOMER ");
   printf("%-15s ", account->person.personName);
@@ -358,24 +296,17 @@ void displayAccountDetailRecord(const struct Account* account)
   printf("%11.2lf ", account->person.householdIncome);
   printf("%-10s ", account->person.country);
 
-  if (account->userLogin.userLoginName[0] != 0)
-  {
+  if (account->userLogin.userLoginName[0] != 0) {
     printf("%-10s ", account->userLogin.userLoginName);
     int i = 0;
-    for (i = 0; i < 8; i++)
-    {
-      if ((i + 1) % 2 == 0)
-      {
+    for (i = 0; i < 8; i++) {
+      if ((i + 1) % 2 == 0) {
         printf("*");
-      }
-      else
-      {
+      } else {
         printf("%c", account->userLogin.password[i]);
       }
     }
-  }
-  else
-  {
+  } else {
     printf("%-10s ", "");
     printf("%-8s", "");
   }
@@ -384,43 +315,38 @@ void displayAccountDetailRecord(const struct Account* account)
 }
 
 // Pause execution until user enters the enter key
-void pauseExecution(void)
-{
+void pauseExecution(void) {
   printf("<< ENTER key to Continue... >>");
   clearStandardInputBuffer();
   putchar('\n');
 }
 
-int getModifyMenuActive()
-{
+int getModifyMenuActive() {
   return modifyMenuActive;
 }
-void setModifyMenuActive(int val)
-{
+
+void setModifyMenuActive(int val) {
   modifyMenuActive = val;
 }
 
-int getUniqueAccountNumber()
-{
+int getUniqueAccountNumber() {
   return uniqueAccountNumber;
 }
-void UpdateUniqueAccountNumber(const struct Account accounts[], int size)
-{
+
+void UpdateUniqueAccountNumber(const struct Account accounts[], int size) {
   // find and set unique account number
   int i, largestAccountNumber = -1;
-  for (i = 0; i < size; i++)
-  {
+  for (i = 0; i < size; i++) {
     int temp = accounts[i].accountNumber;
-    if (temp > largestAccountNumber)
-    {
+    if (temp > largestAccountNumber) {
       largestAccountNumber = temp;
     }
   }
+
   uniqueAccountNumber = largestAccountNumber + 1;
 }
 
-int getLoginindex()
-{
+int getLoginindex() {
   return loginINDEX;
 }
 

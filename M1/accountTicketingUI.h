@@ -6,7 +6,7 @@
 
 struct AccountTicketingData {
   struct Account* accounts;
-  const int ACCOUNT_MAX_SIZE; // max ele of acc array
+  const int ACCOUNT_MAX_SIZE; 
 
   struct Ticket* tickets;
   const int TICKET_MAX_SIZE;
